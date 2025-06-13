@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts: Inter & Pacifico -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://css2?family=Inter:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF8F9;
+        }
+        .cursive {
+            font-family: 'Pacifico', cursive;
+        }
+        .memory-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        .memory-card:hover {
+            transform: translateY(-5px);
+        }
+        .memory-card video, .memory-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .countdown-number {
+            font-size: 2.5rem;
+            line-height: 1;
+            font-weight: 700;
+            color: #f43f5e; /* Rose-500 */
+        }
+        .countdown-label {
+            font-size: 0.875rem;
+            color: #52525b; /* Zinc-600 */
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Background Music & Controls -->
+    <!-- IMPORTANT: Replace the 'src' with a direct link to the song you want. -->
+    <audio id="background-music" src="https://files.catbox.moe/yohjeu.mp3" loop></audio>
+
+    <div class="fixed bottom-4 right-4 z-10">
+        <button id="music-control" class="bg-rose-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg focus:outline-none">
+            <!-- Play Icon -->
+            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"></path>
+            </svg>
+            <!-- Pause Icon (hidden by default) -->
+            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Header Section -->
+    <header class="text-center py-12 bg-white shadow-md">
+        <h1 class="text-5xl md:text-6xl font-bold text-rose-500 cursive">Our Digital Scrapbook</h1>
+        <p class="mt-4 text-lg text-gray-600">A little gift for my Princess, <span class="font-bold">Quinnu Cutee</span>!</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 md:p-8 space-y-16">
+
+        <!-- 1. Countdown Timer to Singapore -->
+        <section class="text-center bg-white p-8 rounded-xl shadow-lg">
+             <h2 class="text-3xl font-bold text-center text-rose-500 mb-4">Countdown to Singapore!</h2>
+            <p class="text-gray-600 mb-6">Can't wait to see you on June 26th!</p>
+            <div id="countdown-timer" class="flex justify-center items-center space-x-4 md:space-x-8">
+                <div class="text-center">
+                    <div id="days" class="countdown-number">00</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                 <div class="countdown-number">:</div>
+                <div class="text-center">
+                    <div id="hours" class="countdown-number">00</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                 <div class="countdown-number">:</div>
+                <div class="text-center">
+                    <div id="minutes" class="countdown-number">00</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                 <div class="countdown-number">:</div>
+                <div class="text-center">
+                    <div id="seconds" class="countdown-number">00</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+            </div>
+            <div id="countdown-finished" class="hidden text-2xl font-bold text-rose-500 mt-6">You're here! The wait is over!</div>
+        </section>
+
+        <!-- 2. Our Journey Graph -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center text-rose-500 mb-6 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="text-rose-400"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                Our Awesome Journey
+            </h2>
+            <div><canvas id="loveGraph"></canvas></div>
+        </section>
+
+        <!-- 3. Memory Lane Gallery (Updated for Permanent Links) -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center text-rose-500 mb-6">Memory Lane</h2>
+            <div class="max-w-xl mx-auto bg-rose-50 p-6 rounded-lg border border-rose-200">
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Add a New Permanent Memory:</h3>
+                <p class="text-sm text-gray-600 mb-4">First, upload a photo/video to a site like <a href="https://imgur.com/upload" target="_blank" class="text-rose-500 font-semibold underline">Imgur</a>. Then, paste the direct image/video link below.</p>
+                <div class="space-y-4">
+                    <input type="text" id="memory-text" placeholder="What's this memory about?" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none">
+                    <input type="text" id="media-url" placeholder="Paste the direct media URL here (e.g., ends in .jpg, .png, .mp4)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none">
+                    <button id="add-memory-btn" class="w-full bg-rose-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-rose-600 transition-colors duration-300">
+                        Add to Our Story
+                    </button>
+                </div>
+            </div>
+            <div id="gallery" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <!-- Memories will appear here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 mt-12 border-t border-rose-100">
+        <p class="text-gray-500">Made with ❤️ by <span class="font-bold">🍑</span></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Countdown Timer Logic ---
+            const countdownDate = new Date("June 26, 2025 00:00:00").getTime();
+            const countdownTimerEl = document.getElementById('countdown-timer');
+            const countdownFinishedEl = document.getElementById('countdown-finished');
+
+            const timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    countdownTimerEl.classList.add('hidden');
+                    countdownFinishedEl.classList.remove('hidden');
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = days.toString().padStart(2, '0');
+                document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').innerText = seconds.toString().padStart(2, '0');
+            }, 1000);
+
+            // --- Love Graph Logic ---
+            const ctx = document.getElementById('loveGraph').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(244, 63, 94, 0.5)');
+            gradient.addColorStop(1, 'rgba(251, 113, 133, 0)');
+            new Chart(ctx, { type: 'line', data: { labels: ['Mùng 2 Tết', 'Our Date at Katinat', 'When I Was in Europe 🥹"', 'When We Were at Singapore', 'My First Job', 'Today!'], datasets: [{ label: 'Happiness Level', data: [100, 200, 500, 1000 , 2000, 3000], backgroundColor: gradient, borderColor: 'rgba(244, 63, 94, 1)', borderWidth: 3, pointBackgroundColor: 'white', pointBorderColor: 'rgba(244, 63, 94, 1)', pointBorderWidth: 2, pointRadius: 6, tension: 0.4, fill: true, }] }, options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: '#fce7f3' }, ticks: { callback: (value) => value + '% Love' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#be123c', titleFont: { size: 15 }, bodyFont: { size: 14 }, padding: 12, cornerRadius: 8 } } } });
+
+            // --- Permanent Memory Lane Logic ---
+            const addMemoryBtn = document.getElementById('add-memory-btn');
+            const memoryTextEl = document.getElementById('memory-text');
+            const mediaUrlEl = document.getElementById('media-url');
+            const galleryEl = document.getElementById('gallery');
+
+            addMemoryBtn.addEventListener('click', function() {
+                const text = memoryTextEl.value;
+                const url = mediaUrlEl.value;
+
+                if (!text || !url) {
+                    alert('Please provide both a caption and a media URL!');
+                    return;
+                }
+                
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+
+                let mediaElement;
+                if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+                    mediaElement = document.createElement('img');
+                    mediaElement.src = url;
+                    mediaElement.alt = text;
+                } else if (url.match(/\.(mp4|webm)$/) != null) {
+                    mediaElement = document.createElement('video');
+                    mediaElement.src = url;
+                    mediaElement.controls = true;
+                } else {
+                    alert('Please use a direct link to an image (jpg, png) or video (mp4, webm).');
+                    return;
+                }
+                
+                const captionDiv = document.createElement('div');
+                captionDiv.className = 'p-4';
+                const captionP = document.createElement('p');
+                captionP.className = 'text-gray-700';
+                captionP.textContent = text;
+                
+                captionDiv.appendChild(captionP);
+                card.appendChild(mediaElement);
+                card.appendChild(captionDiv);
+                galleryEl.prepend(card);
+
+                memoryTextEl.value = '';
+                mediaUrlEl.value = '';
+            });
+
+            // --- Music Player Logic ---
+            const music = document.getElementById('background-music');
+            const musicControl = document.getElementById('music-control');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            musicControl.addEventListener('click', () => {
+                if (music.paused) {
+                    music.play();
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                } else {
+                    music.pause();
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
