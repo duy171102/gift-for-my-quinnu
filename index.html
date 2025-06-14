@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Story</title>
+    <title>Our Story - Happy Anniversary!</title>
     
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,28 +11,52 @@
     <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Google Fonts: Inter & Pacifico -->
+    <!-- Google Fonts: Inter, Pacifico, and Merriweather for the letter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://css2?family=Inter:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Merriweather:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 
     <style>
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #FFF8F9;
+            /* Animated gradient background */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: animateGradient 15s ease infinite;
+            color: #333;
         }
+        
+        #falling-petals-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1; /* Place canvas behind all content */
+        }
+
         .cursive {
             font-family: 'Pacifico', cursive;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         }
         .memory-card {
+            position: relative;
             background-color: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .memory-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
         }
         .memory-card video, .memory-card img {
             width: 100%;
@@ -43,130 +67,245 @@
             font-size: 2.5rem;
             line-height: 1;
             font-weight: 700;
-            color: #f43f5e; /* Rose-500 */
+            color: #e73c7e;
         }
         .countdown-label {
             font-size: 0.875rem;
             color: #52525b; /* Zinc-600 */
             text-transform: uppercase;
         }
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: bold;
+        }
+        .memory-card:hover .delete-btn {
+            opacity: 1;
+        }
+        #custom-modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Styling for the main content sections to make them pop against the background */
+        .content-section {
+             background-color: rgba(255, 255, 255, 0.85);
+             backdrop-filter: blur(10px);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
+    <!-- Canvas for falling rose petals -->
+    <canvas id="falling-petals-canvas"></canvas>
 
-    <!-- Background Music & Controls -->
-    <!-- IMPORTANT: Replace the 'src' with a direct link to the song you want. -->
-    <audio id="background-music" src="https://files.catbox.moe/yohjeu.mp3" loop></audio>
+    <!-- Background Music -->
+    <audio id="background-music" src="https://ia600601.us.archive.org/17/items/stephen-sanchez-until-i-found-you-official-video-stephen-sanchez-vevo/Stephen%20Sanchez%20-%20Until%20I%20Found%20You%20%28Official%20Video%29%20-%20StephenSanchezVEVO.mp3" loop></audio>
 
-    <div class="fixed bottom-4 right-4 z-10">
-        <button id="music-control" class="bg-rose-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg focus:outline-none">
-            <!-- Play Icon -->
-            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"></path>
-            </svg>
-            <!-- Pause Icon (hidden by default) -->
-            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
-            </svg>
+    <!-- Music Controls -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="music-control" class="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg focus:outline-none hover:bg-pink-600 transition-colors">
+            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
         </button>
     </div>
 
     <!-- Header Section -->
-    <header class="text-center py-12 bg-white shadow-md">
-        <h1 class="text-5xl md:text-6xl font-bold text-rose-500 cursive">Our Digital Scrapbook</h1>
-        <p class="mt-4 text-lg text-gray-600">A little gift for my Princess, <span class="font-bold">Quinnu Cutee</span>!</p>
+    <header class="text-center py-12 bg-white/70 backdrop-blur-sm shadow-md">
+        <h1 class="text-5xl md:text-6xl font-bold text-pink-600 cursive">Happy 28th Anniversary❤️</h1>
+        <p class="mt-4 text-lg text-gray-700">A little gift for my Princess, <span class="font-bold">Quinnu Cutee</span>!</p>
     </header>
 
     <!-- Main Content -->
     <main class="container mx-auto p-4 md:p-8 space-y-16">
+        
+        <!-- A Letter To You Section -->
+        <section class="content-section p-8 rounded-2xl shadow-lg">
+             <h2 class="text-4xl font-bold text-center text-pink-600 mb-6">A Letter For You...</h2>
+             <div class="max-w-3xl mx-auto text-lg text-gray-700 leading-relaxed bg-white/50 p-6 rounded-lg" style="white-space: pre-wrap; font-family: 'Merriweather', serif;">
+                To My Baby Princess Quinnu,
 
-        <!-- 1. Countdown Timer to Singapore -->
-        <section class="text-center bg-white p-8 rounded-xl shadow-lg">
-             <h2 class="text-3xl font-bold text-center text-rose-500 mb-4">Countdown to Singapore!</h2>
-            <p class="text-gray-600 mb-6">Can't wait to see you on June 26th!</p>
-            <div id="countdown-timer" class="flex justify-center items-center space-x-4 md:space-x-8">
-                <div class="text-center">
-                    <div id="days" class="countdown-number">00</div>
-                    <div class="countdown-label">Days</div>
-                </div>
-                 <div class="countdown-number">:</div>
-                <div class="text-center">
-                    <div id="hours" class="countdown-number">00</div>
-                    <div class="countdown-label">Hours</div>
-                </div>
-                 <div class="countdown-number">:</div>
-                <div class="text-center">
-                    <div id="minutes" class="countdown-number">00</div>
-                    <div class="countdown-label">Minutes</div>
-                </div>
-                 <div class="countdown-number">:</div>
-                <div class="text-center">
-                    <div id="seconds" class="countdown-number">00</div>
-                    <div class="countdown-label">Seconds</div>
-                </div>
+                Hihii tháng nàyy a ngựa ngựa nhờ AI làm website cho e eoo nèee kkk <3 Tháng này e eoo cực xỉuu vừa chuyển nhàa, rùi học mấy môn bẩn bựaaa như Nutrition thương e eoo xỉuu🥺 Hi zọng e eoo chuyển nhà mới xongg e eoo set up ổnnn qua đây e eoo thiệt thiệt ổnd định hehehee, gòi có gì sau này a quaa xà lơ chỗ mới hihii 😍 Hi zọng tháng này e eooo nhận hoa của a okee, tiệm shop này bựa quée huhuu, mốt mua hoa xịn xò con bò lại bù cho e eoo nhenn hihii, a tặng hoa digital giống z thay thế nè kkkk🥹Cũng cảm ơnn eoo tặng a cái quà đồng hồ quá là cute hột mee hihi a để ảnh e eoo lên 😘
+
+                Hi vọng thời gian trong mấy ngày tớii qua nhanh thiệt nhanh để a qua vs e eoo lẹ lẹ hơnn 💕Kỳ này a vs e eoo quaa ăn sang thiệt sangg hihi do a hem cần tốn tiền ksan nên bao e eoo hết lun hehee <3 Nhân dịp anni này hi zọng a vs eoo dc gặp nhau nhiều hơnn hihi ở Sing ở VN, gòi ở Malay nữa kkk gặp nhau mọi nơii lunn (❁´◡`❁) Lúc nào a cũng iuu e eoo hi zọng dc ăn anni vs e eoo thêm nhiều nhiều ngồi nghĩ ra nhiều loại thiệp tào laooo giống z nè kkk
+
+
+                Yêu e eoo nhèoo nhèoo,
+                Anh Pi Tờ 🍑
             </div>
-            <div id="countdown-finished" class="hidden text-2xl font-bold text-rose-500 mt-6">You're here! The wait is over!</div>
         </section>
 
-        <!-- 2. Our Journey Graph -->
-        <section class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-3xl font-bold text-center text-rose-500 mb-6 flex items-center justify-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="text-rose-400"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <!-- Countdown Timer to Singapore -->
+        <section class="content-section text-center p-8 rounded-2xl shadow-lg">
+             <h2 class="text-3xl font-bold text-center text-pink-600 mb-4">Countdown until I'm in Singapore!</h2>
+            <p class="text-gray-600 mb-6">Can't wait for June 26th!</p>
+            <div id="countdown-timer" class="flex justify-center items-center space-x-4 md:space-x-8">
+                <div><div id="days" class="countdown-number">00</div><div class="countdown-label">Days</div></div>
+                <div class="countdown-number">:</div>
+                <div><div id="hours" class="countdown-number">00</div><div class="countdown-label">Hours</div></div>
+                <div class="countdown-number">:</div>
+                <div><div id="minutes" class="countdown-number">00</div><div class="countdown-label">Minutes</div></div>
+                <div class="countdown-number">:</div>
+                <div><div id="seconds" class="countdown-number">00</div><div class="countdown-label">Seconds</div></div>
+            </div>
+            <div id="countdown-finished" class="hidden text-2xl font-bold text-pink-600 mt-6">I'm here! The wait is over!</div>
+        </section>
+
+        <!-- Our Journey Graph -->
+        <section class="content-section p-6 rounded-2xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center text-pink-600 mb-6 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="text-pink-400"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 Our Awesome Journey
             </h2>
             <div><canvas id="loveGraph"></canvas></div>
         </section>
 
-        <!-- 3. Memory Lane Gallery (Updated for Permanent Links) -->
-        <section class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-3xl font-bold text-center text-rose-500 mb-6">Memory Lane</h2>
-            <div class="max-w-xl mx-auto bg-rose-50 p-6 rounded-lg border border-rose-200">
+        <!-- Memory Lane Gallery -->
+        <section class="content-section p-6 rounded-2xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center text-pink-600 mb-6">Memory Lane</h2>
+            <div class="max-w-xl mx-auto bg-white/60 p-6 rounded-lg border border-rose-200">
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Add a New Permanent Memory:</h3>
-                <p class="text-sm text-gray-600 mb-4">First, upload a photo/video to a site like <a href="https://imgur.com/upload" target="_blank" class="text-rose-500 font-semibold underline">Imgur</a>. Then, paste the direct image/video link below.</p>
                 <div class="space-y-4">
-                    <input type="text" id="memory-text" placeholder="What's this memory about?" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none">
-                    <input type="text" id="media-url" placeholder="Paste the direct media URL here (e.g., ends in .jpg, .png, .mp4)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none">
-                    <button id="add-memory-btn" class="w-full bg-rose-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-rose-600 transition-colors duration-300">
+                    <input type="text" id="memory-text" placeholder="What's this memory about?" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                    <input type="text" id="media-url" placeholder="Paste the direct media URL here (e.g., .jpg, .png, .mp4)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                    <button id="add-memory-btn" class="w-full bg-pink-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-pink-600 transition-colors duration-300">
                         Add to Our Story
                     </button>
                 </div>
             </div>
-            <div id="gallery" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                 <!-- Memories will appear here -->
-            </div>
+            <div id="gallery" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center py-8 mt-12 border-t border-rose-100">
-        <p class="text-gray-500">Made with ❤️ by <span class="font-bold">🍑</span></p>
+    <footer class="text-center py-8 mt-12">
+        <p class="text-white/80 text-shadow-sm">Made with ❤️ by <span class="font-bold">🍑</span></p>
     </footer>
+
+    <!-- Modal for notifications -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 opacity-0">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
+            <p id="modal-text" class="text-lg text-gray-700 mb-4"></p>
+            <button id="modal-close-btn" class="bg-pink-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-pink-600 transition-colors">OK</button>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
+            // --- Realistic Falling Rose Petals Logic ---
+            const canvas = document.getElementById('falling-petals-canvas');
+            const ctx = canvas.getContext('2d');
+            let petals = [];
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const petalColors = ['#e73c7e', '#f472b6', '#fbcfe8', '#fecdd3'];
+
+            function createPetal() {
+                const size = Math.random() * 10 + 8; // Smaller, more delicate petals
+                return {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * -canvas.height - size, // Start off-screen
+                    size: size,
+                    speed: Math.random() * 1 + 0.5, // Slower fall speed
+                    color: petalColors[Math.floor(Math.random() * petalColors.length)],
+                    sway: Math.random() * 0.5,
+                    swayAngle: Math.random() * Math.PI * 2,
+                    rotation: Math.random() * Math.PI * 2, // Initial rotation
+                    rotationSpeed: (Math.random() - 0.5) * 0.02 // How fast it tumbles
+                };
+            }
+
+            for (let i = 0; i < 75; i++) { // More petals for a fuller effect
+                petals.push(createPetal());
+            }
+
+            // This function draws a more realistic, curved petal shape
+            function drawPetal(petal) {
+                ctx.save(); // Save the current canvas state
+                ctx.translate(petal.x, petal.y); // Move to the petal's position
+                ctx.rotate(petal.rotation); // Rotate the canvas for the tumbling effect
+                
+                ctx.beginPath();
+                ctx.fillStyle = petal.color;
+                ctx.moveTo(0, 0);
+                // Use bezier curves to create a nice petal shape
+                ctx.bezierCurveTo(petal.size / 2, petal.size / 2, petal.size, -petal.size / 2, 0, 0);
+                ctx.bezierCurveTo(-petal.size / 2, petal.size / 2, -petal.size, -petal.size/2, 0, 0);
+                ctx.fill();
+                
+                ctx.restore(); // Restore the canvas to its original state
+            }
+
+            function animatePetals() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                petals.forEach((petal, index) => {
+                    petal.y += petal.speed;
+                    petal.rotation += petal.rotationSpeed; // Update rotation
+                    petal.swayAngle += 0.02;
+                    petal.x += Math.sin(petal.swayAngle) * petal.sway;
+                    
+                    if (petal.y > canvas.height + petal.size) { // Check if it's off-screen
+                        petals[index] = createPetal();
+                        petals[index].y = -petal.size; // Reset just above the screen
+                    }
+                    drawPetal(petal);
+                });
+                requestAnimationFrame(animatePetals);
+            }
+            animatePetals();
+            
+            // --- Custom Modal Logic ---
+            const modal = document.getElementById('custom-modal');
+            const modalText = document.getElementById('modal-text');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            function showModal(message) {
+                modalText.textContent = message;
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            }
+            function hideModal() {
+                 modal.classList.add('opacity-0');
+                 setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+            modalCloseBtn.addEventListener('click', hideModal);
+
             // --- Countdown Timer Logic ---
-            const countdownDate = new Date("June 26, 2025 00:00:00").getTime();
+            const countdownDate = new Date("June 26, 2025 12:00:00").getTime();
             const countdownTimerEl = document.getElementById('countdown-timer');
             const countdownFinishedEl = document.getElementById('countdown-finished');
 
             const timerInterval = setInterval(function() {
                 const now = new Date().getTime();
                 const distance = countdownDate - now;
-
                 if (distance < 0) {
                     clearInterval(timerInterval);
                     countdownTimerEl.classList.add('hidden');
                     countdownFinishedEl.classList.remove('hidden');
                     return;
                 }
-
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
                 document.getElementById('days').innerText = days.toString().padStart(2, '0');
                 document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
                 document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
@@ -174,11 +313,11 @@
             }, 1000);
 
             // --- Love Graph Logic ---
-            const ctx = document.getElementById('loveGraph').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(244, 63, 94, 0.5)');
-            gradient.addColorStop(1, 'rgba(251, 113, 133, 0)');
-            new Chart(ctx, { type: 'line', data: { labels: ['Mùng 2 Tết', 'Our Date at Katinat', 'When I Was in Europe 🥹"', 'When We Were at Singapore', 'My First Job', 'Today!'], datasets: [{ label: 'Happiness Level', data: [100, 200, 500, 1000 , 2000, 3000], backgroundColor: gradient, borderColor: 'rgba(244, 63, 94, 1)', borderWidth: 3, pointBackgroundColor: 'white', pointBorderColor: 'rgba(244, 63, 94, 1)', pointBorderWidth: 2, pointRadius: 6, tension: 0.4, fill: true, }] }, options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: '#fce7f3' }, ticks: { callback: (value) => value + '% Love' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#be123c', titleFont: { size: 15 }, bodyFont: { size: 14 }, padding: 12, cornerRadius: 8 } } } });
+            const loveGraphCtx = document.getElementById('loveGraph').getContext('2d');
+            const gradient = loveGraphCtx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(231, 60, 126, 0.6)');
+            gradient.addColorStop(1, 'rgba(231, 60, 126, 0.1)');
+            new Chart(loveGraphCtx, { type: 'line', data: { labels: ['Mùng 2 Tết', 'Our Date at Katinat', 'When I Was in Europe 🥹"', 'When We Were at Singapore', 'My First Job', 'Today!'], datasets: [{ label: 'Happiness Level', data: [100, 200, 500, 1000 , 2000, 3000], backgroundColor: gradient, borderColor: '#e73c7e', borderWidth: 3, pointBackgroundColor: 'white', pointBorderColor: '#e73c7e', pointBorderWidth: 2, pointRadius: 6, tension: 0.4, fill: true, }] }, options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: '#fce7f3' }, ticks: { callback: (value) => value + '% Love' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#be123c', titleFont: { size: 15 }, bodyFont: { size: 14 }, padding: 12, cornerRadius: 8 } } } });
 
             // --- Permanent Memory Lane Logic ---
             const addMemoryBtn = document.getElementById('add-memory-btn');
@@ -186,58 +325,78 @@
             const mediaUrlEl = document.getElementById('media-url');
             const galleryEl = document.getElementById('gallery');
 
-            addMemoryBtn.addEventListener('click', function() {
-                const text = memoryTextEl.value;
-                const url = mediaUrlEl.value;
-
+            function addMemory(text, url, isInitial = false) {
                 if (!text || !url) {
-                    alert('Please provide both a caption and a media URL!');
+                    if(!isInitial) showModal('Please provide both a caption and a media URL!');
                     return;
                 }
-                
                 const card = document.createElement('div');
                 card.className = 'memory-card';
-
                 let mediaElement;
                 if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
                     mediaElement = document.createElement('img');
                     mediaElement.src = url;
                     mediaElement.alt = text;
+                    mediaElement.onerror = () => {
+                        mediaElement.src = `https://placehold.co/400x200/fecaca/be123c?text=Image+Not+Found`;
+                        if(!isInitial) showModal('The image link seems broken, but I added it anyway!');
+                    };
                 } else if (url.match(/\.(mp4|webm)$/) != null) {
                     mediaElement = document.createElement('video');
                     mediaElement.src = url;
                     mediaElement.controls = true;
+                    mediaElement.muted = true; // Mute videos by default
+                    mediaElement.setAttribute('playsinline', ''); // For iOS Safari
                 } else {
-                    alert('Please use a direct link to an image (jpg, png) or video (mp4, webm).');
+                    if(!isInitial) showModal('Please use a direct link to an image (jpg, png) or video (mp4, webm).');
                     return;
                 }
-                
                 const captionDiv = document.createElement('div');
                 captionDiv.className = 'p-4';
                 const captionP = document.createElement('p');
                 captionP.className = 'text-gray-700';
                 captionP.textContent = text;
-                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.onclick = () => { card.style.transition = 'opacity 0.3s ease'; card.style.opacity = '0'; setTimeout(() => card.remove(), 300); };
                 captionDiv.appendChild(captionP);
+                card.appendChild(deleteBtn);
                 card.appendChild(mediaElement);
                 card.appendChild(captionDiv);
                 galleryEl.prepend(card);
+                if (!isInitial) {
+                    memoryTextEl.value = '';
+                    mediaUrlEl.value = '';
+                }
+            }
+            addMemoryBtn.addEventListener('click', () => { addMemory(memoryTextEl.value, mediaUrlEl.value); });
+            
+            // UPDATED: Pre-populate with new memories
+            addMemory('unbox popmart pengu cùng e eoo hehee 🐧', 'https://ia600406.us.archive.org/25/items/6695894934477/6695894934477.mp4', true);
+            addMemory('hehee hình tốt nghiệp vs e eoo nèee 🎓', 'https://ia600406.us.archive.org/25/items/6695894934477/z6695894534936_c360043ecc924525b4f0affecc8f6ecd.jpg', true);
+            addMemory('kkk đi malay chơii', 'https://ia600406.us.archive.org/25/items/6695894934477/z6695894543829_d3e46c079182b09efc6d9283f08b6e03.jpg', true);
+            addMemory('hehee chở e eoo đi xe máyy 🏍️', 'https://ia600406.us.archive.org/25/items/6695894934477/z6695894638207_de11b9655c702f9a0f3bf78540a9701f.jpg', true);
+            addMemory('e eoo xinh xỉuu hihi <3', 'https://ia600406.us.archive.org/25/items/6695894934477/z6695894614306_02c4f0bcab12d4c70821beb1d4c91a19.jpg', true);
+            addMemory('hihii thang máy maplewoods mát ghee !', 'https://ia600406.us.archive.org/25/items/6695894934477/z6695894572612_fb5d89d304b5467557eecf3c4eb41f2b.jpg', true);
 
-                memoryTextEl.value = '';
-                mediaUrlEl.value = '';
-            });
 
             // --- Music Player Logic ---
             const music = document.getElementById('background-music');
             const musicControl = document.getElementById('music-control');
             const playIcon = document.getElementById('play-icon');
             const pauseIcon = document.getElementById('pause-icon');
-
+            
             musicControl.addEventListener('click', () => {
+                // Autoplay can be blocked by browsers, so we handle the promise returned by play()
                 if (music.paused) {
-                    music.play();
-                    playIcon.classList.add('hidden');
-                    pauseIcon.classList.remove('hidden');
+                    music.play().then(() => {
+                        playIcon.classList.add('hidden');
+                        pauseIcon.classList.remove('hidden');
+                    }).catch(error => {
+                        console.error("Music playback failed:", error);
+                        showModal("Browser blocked autoplay. Please interact with the page first.");
+                    });
                 } else {
                     music.pause();
                     playIcon.classList.remove('hidden');
